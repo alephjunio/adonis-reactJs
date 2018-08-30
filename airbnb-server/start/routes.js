@@ -22,3 +22,8 @@ Route.get('/', ({ request }) => {
 Route.post('/users', 'UserController.create')
 
 Route.post('/sessions', 'SessionController.create')
+
+// Routes para properties 
+Route.resource('properties', 'PropertyController')
+  .apiOnly()
+  .middleware('auth')

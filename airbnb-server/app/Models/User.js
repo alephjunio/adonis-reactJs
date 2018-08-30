@@ -31,6 +31,13 @@ class User extends Model {
   tokens () {
     return this.hasMany('App/Models/Token')
   }
+
+  // Relacionamento de 1 usuario para muitos imoveis
+  properties () {
+   return this.hasMany('App/Models/Property')
+ }
+
+
 }
 
 module.exports = User
