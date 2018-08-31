@@ -1,5 +1,6 @@
 'use strict'
 
+const Helpers = use('Helpers')
 const Property = use('App/Models/Property')
 
 /**
@@ -10,9 +11,13 @@ class PropertyController {
   * Show a list of all properties.
   * GET properties
   */
-  async index () {
+  async index ({ request }) {
+    const { latitude, longitude } = request.all()
 
-    const properties = Property.all()
+    const properties = Property.query()
+    .with('images') // select com imagens
+    .nearBy(latitude, longitude, 10)
+    .fetch()
 
     return properties
   }
@@ -21,7 +26,19 @@ class PropertyController {
   * Create/save a new property.
   * POST properties
   */
-  async store ({ request, response }) {
+  async store ({ auth, request, response }) {
+    const { id } = auth.user
+    const data = request.only([
+      'title',
+      'address',
+      'latitude',
+      'longitude',
+      'price'
+    ])
+
+    const property = await Property.create({ ...data, user_id: id })
+
+    return property
   }
 
   /**
@@ -29,13 +46,11 @@ class PropertyController {
   * GET properties/:id
   */
   async show ({ params }) {
-
     const property = await Property.findOrFail(params.id)
 
     await property.load('images')
 
     return property
-
   }
 
   /**
@@ -43,6 +58,21 @@ class PropertyController {
   * PUT or PATCH properties/:id
   */
   async update ({ params, request, response }) {
+    const property = await Property.findOrFail(params.id)
+
+    const data = request.only([
+      'title',
+      'address',
+      'latitude',
+      'longitude',
+      'price'
+    ])
+
+    property.merge(data)
+
+    await property.save()
+
+    return property
   }
 
   /**
@@ -50,8 +80,6 @@ class PropertyController {
   * DELETE properties/:id
   */
   async destroy ({ params, auth, response }) {
-
-
     const property = await Property.findOrFail(params.id)
 
     if (property.user_id !== auth.user.id) {
@@ -59,8 +87,5 @@ class PropertyController {
     }
 
     await property.delete()
-
   }
 }
-
-module.exports = PropertyController

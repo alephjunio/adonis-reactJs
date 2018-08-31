@@ -23,7 +23,14 @@ Route.post('/users', 'UserController.create')
 
 Route.post('/sessions', 'SessionController.create')
 
-// Routes para properties 
+// Routes para properties
 Route.resource('properties', 'PropertyController')
-  .apiOnly()
-  .middleware('auth')
+.apiOnly()
+.middleware('auth')
+
+// rota para cadastro fe imagens da propriedade.
+Route.post('properties/:id/images', 'ImageController.store')
+.middleware('auth')
+
+// Rota para exibição da imagens
+Route.get('images/:path', 'ImageController.show')
